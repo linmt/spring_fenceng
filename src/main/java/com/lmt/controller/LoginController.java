@@ -4,8 +4,8 @@ import com.lmt.entity.Admin;
 import com.lmt.service.ApplicationException;
 import com.lmt.service.LoginService;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.portlet.bind.annotation.RenderMapping;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -29,23 +29,23 @@ public class LoginController {
         String adminCode=request.getParameter("adminCode");
         String pwd=request.getParameter("pwd");
         System.out.println(adminCode+"  "+pwd);
-        try {
-            Admin admin=service.checkLogin(adminCode,pwd);
-        } catch (Exception e) {
-            e.printStackTrace();
-            //应用异常，提示用户采取正确的操作
-            if(e instanceof ApplicationException){
-                request.setAttribute("error",e.getMessage());
-                return "main/login";
-            }
-            //系统异常，提示用户稍后重试
-            return "public/error";
-        }
+        Admin admin=service.checkLogin(adminCode,pwd);
         return "redirect:toIndex.form";
     }
     @RequestMapping("/toIndex.form")
     public String toIndex(){
         System.out.println("index()");
         return "main/index";
+    }
+
+    @ExceptionHandler
+    public String exHandle(Exception e,HttpServletRequest request){
+        //应用异常，提示用户采取正确的操作
+        if(e instanceof ApplicationException){
+            request.setAttribute("error",e.getMessage());
+            return "main/login";
+        }
+        //系统异常，提示用户稍后重试
+        return "public/error";
     }
 }
